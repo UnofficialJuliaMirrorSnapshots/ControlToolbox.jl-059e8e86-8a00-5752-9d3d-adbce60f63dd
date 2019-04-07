@@ -1,0 +1,33 @@
+language: julia
+
+os:
+  - linux
+  - osx
+
+julia:
+  - 0.5
+  - 0.6
+  - nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - julia: nightly
+
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/4d251aa5edf2b9cd50b5
+    on_success: change
+    on_failure: change
+    on_start: never
+
+script:
+  - julia -e 'Pkg.clone(pwd()); Pkg.build("ControlToolbox")'
+  - julia --check-bounds=yes --inline=no -e 'Pkg.test("ControlToolbox",
+    coverage=true)'
+
+after_success:
+  - julia -e 'cd(Pkg.dir("ControlToolbox")); Pkg.add("Coverage"); using Coverage;
+    Coveralls.submit(process_folder()); Codecov.submit(process_folder())'
